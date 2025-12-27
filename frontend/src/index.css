@@ -1,1 +1,35 @@
 @import "tailwindcss";
+.fc {
+  --fc-border-color: rgba(75, 85, 99, 0.4);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: rgba(17, 24, 39, 0.6);
+  --fc-today-bg-color: rgba(239, 68, 68, 0.15);
+}
+
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border-color: rgba(75, 85, 99, 0.4);
+}
+
+.fc-toolbar-title {
+  color: white;
+  font-weight: 900;
+}
+
+.fc-button {
+  background: rgba(31, 41, 55, 0.6) !important;
+  border: 1px solid rgba(75, 85, 99, 0.4) !important;
+  font-weight: bold !important;
+}
+
+.fc-button:hover {
+  background: rgba(55, 65, 81, 0.6) !important;
+}
+
+.fc-timegrid-slot-label {
+  color: rgba(156, 163, 175, 0.8);
+}
+
+.fc-col-header-cell {
+  background: rgba(3, 7, 18, 0.4);
+}

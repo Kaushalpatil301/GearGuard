@@ -118,16 +118,30 @@ const MaintenanceDetail = ({ data, onBack }) => {
       {/* Header & Status Bar */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-6">
         <div>
-          <button
-            onClick={onBack}
-            className="group flex items-center text-indigo-400 hover:text-indigo-300 transition-colors mb-2 text-sm font-medium"
-          >
-            <ChevronLeft
-              size={18}
-              className="group-hover:-translate-x-1 transition-transform"
-            />
-            Back to Dashboard
-          </button>
+          <div className="flex items-center gap-3 mb-2">
+            <button
+              onClick={onBack}
+              className="group flex items-center text-indigo-400 hover:text-indigo-300 transition-colors text-sm font-medium"
+            >
+              <ChevronLeft
+                size={18}
+                className="group-hover:-translate-x-1 transition-transform"
+              />
+              Back to Dashboard
+            </button>
+            {data.equipment_id && (
+              <>
+                <span className="text-gray-600">|</span>
+                <button
+                  onClick={() => navigate(`/equipment/${data.equipment_id}`)}
+                  className="flex items-center gap-1 text-cyan-400 hover:text-cyan-300 transition-colors text-sm font-medium"
+                >
+                  <ExternalLink size={14} />
+                  View Equipment
+                </button>
+              </>
+            )}
+          </div>
           <div className="space-y-1">
             <span className="text-[10px] uppercase tracking-[0.2em] text-indigo-400 font-bold">
               Subject

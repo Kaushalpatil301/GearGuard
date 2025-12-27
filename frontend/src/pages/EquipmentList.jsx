@@ -281,7 +281,7 @@ const EquipmentList = () => {
                 <tr className="text-[11px] uppercase tracking-widest text-gray-500 border-b border-gray-700/40">
                   <th className="px-6 py-3 font-bold">Equipment Name</th>
                   <th className="px-6 py-3 font-bold">Serial Number</th>
-                  <th className="px-6 py-3 font-bold">Category</th>
+                  <th className="px-6 py-3 font-bold">Department</th>
                   <th className="px-6 py-3 font-bold">Status</th>
                   <th className="px-6 py-3 font-bold">Warranty</th>
                   <th className="px-6 py-3 font-bold">Actions</th>
@@ -301,13 +301,18 @@ const EquipmentList = () => {
                       }`}
                     >
                       <td className="px-6 py-4 text-sm font-semibold text-gray-100">
-                        {item.name}
+                        <button
+                          onClick={() => navigate(`/equipment/${item.id}`)}
+                          className="hover:text-indigo-400 transition cursor-pointer underline-offset-4 hover:underline"
+                        >
+                          {item.name}
+                        </button>
                       </td>
                       <td className="px-6 py-4 text-sm font-mono text-gray-400">
                         {item.serial_number}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-400">
-                        {item.category}
+                        {item.department || "N/A"}
                       </td>
                       <td className="px-6 py-4">
                         <span

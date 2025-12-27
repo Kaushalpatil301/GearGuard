@@ -154,17 +154,25 @@ const EquipmentDetailPage = () => {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-500/10 via-transparent pointer-events-none" />
 
       <main className="relative max-w-7xl mx-auto p-8 animate-in fade-in duration-700">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate(-1)}
-          className="group flex items-center text-indigo-400 hover:text-indigo-300 transition-colors mb-6 text-sm font-medium"
-        >
-          <ChevronLeft
-            size={18}
-            className="group-hover:-translate-x-1 transition-transform"
-          />
-          Back
-        </button>
+        {/* Navigation Buttons */}
+        <div className="flex items-center gap-4 mb-6">
+          <button
+            onClick={() => navigate("/equipment")}
+            className="group flex items-center text-indigo-400 hover:text-indigo-300 transition-colors text-sm font-medium"
+          >
+            <ChevronLeft
+              size={18}
+              className="group-hover:-translate-x-1 transition-transform"
+            />
+            Back to Equipment
+          </button>
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition text-sm font-medium"
+          >
+            Go to Dashboard
+          </button>
+        </div>
 
         {/* Equipment Header */}
         <div className="backdrop-blur-xl bg-gray-800/20 border border-gray-700/30 rounded-3xl p-8 shadow-2xl mb-6">

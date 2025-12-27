@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -6,6 +7,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import { API_BASE_URL } from "../config/api";
 
 const MaintenanceCalendar = () => {
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState({
@@ -71,6 +73,7 @@ const MaintenanceCalendar = () => {
                 : "#4f46e5",
               extendedProps: {
                 equipment: request.equipment_name,
+                equipmentId: request.equipment_id,
                 team: request.team_name,
                 technician: request.assigned_to_name || "Unassigned",
                 priority: request.priority,
@@ -165,6 +168,12 @@ const MaintenanceCalendar = () => {
             firstDay={0}
             events={events}
             datesSet={handleDatesSet}
+            eventClick={(info) => {
+              const equipmentId = info.event.extendedProps.equipmentId;
+              if (equipmentId) {
+                navigate(`/equipment/${equipmentId}`);
+              }
+            }}
             eventContent={(eventInfo) => {
               const props = eventInfo.event.extendedProps;
               const isOverdue = props.isOverdue;

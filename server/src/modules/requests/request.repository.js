@@ -291,6 +291,7 @@ class RequestRepository {
         mr.*,
         e.name as equipment_name,
         t.name as team_name,
+        creator.name as created_by_name,
         ra.assigned_to,
         tech.name as assigned_to_name,
         -- SLA calculations (only for open requests)
@@ -310,6 +311,7 @@ class RequestRepository {
       FROM maintenance_requests mr
       LEFT JOIN equipment e ON mr.equipment_id = e.id
       LEFT JOIN teams t ON mr.team_id = t.id
+      LEFT JOIN users creator ON mr.created_by = creator.id
       LEFT JOIN request_assignments ra ON mr.id = ra.request_id
       LEFT JOIN users tech ON ra.assigned_to = tech.id
       WHERE 1=1

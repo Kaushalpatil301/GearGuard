@@ -24,6 +24,7 @@ const MaintenanceTable = ({
   const [dragOverColumn, setDragOverColumn] = useState(null);
   const [updatingStatus, setUpdatingStatus] = useState(null);
   const [statusError, setStatusError] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const statusColumns = [
     { key: "NEW", label: "New Requests", color: "blue" },
@@ -34,6 +35,7 @@ const MaintenanceTable = ({
 
   const handleDragStart = (e, request) => {
     setDraggedRequest(request);
+    setIsDragging(true);
     e.dataTransfer.effectAllowed = "move";
   };
 
@@ -53,11 +55,13 @@ const MaintenanceTable = ({
 
     if (!draggedRequest || draggedRequest.status === newStatus) {
       setDraggedRequest(null);
+      setIsDragging(false);
       return;
     }
 
     await updateRequestStatus(draggedRequest.id, newStatus);
     setDraggedRequest(null);
+    setIsDragging(false);
   };
 
   const updateRequestStatus = async (requestId, newStatus) => {
@@ -197,20 +201,19 @@ const MaintenanceTable = ({
               {kanbanData[column.key]?.map((request) => (
                 <div
                   key={request.id}
-                  draggable={
-                    column.key === "NEW" || column.key === "IN_PROGRESS"
-                  }
+                  draggable={true}
                   onDragStart={(e) => handleDragStart(e, request)}
-                  onClick={() => onSelectRequest(request)}
+                  onDragEnd={() => setIsDragging(false)}
+                  onClick={() => {
+                    if (!isDragging && request.equipment_id) {
+                      navigate(`/equipment/${request.equipment_id}`);
+                    }
+                  }}
                   className={`backdrop-blur-lg ${getStatusColor(
                     request.status
-                  )} border rounded-2xl p-4 cursor-pointer hover:scale-[1.02] transition-all ${
+                  )} border rounded-2xl p-4 cursor-pointer hover:scale-[1.02] transition-all cursor-grab active:cursor-grabbing ${
                     updatingStatus === request.id
                       ? "opacity-50 cursor-wait"
-                      : ""
-                  } ${
-                    column.key === "NEW" || column.key === "IN_PROGRESS"
-                      ? "cursor-grab active:cursor-grabbing"
                       : ""
                   }`}
                 >
@@ -240,16 +243,8 @@ const MaintenanceTable = ({
                   </h4>
 
                   {/* Equipment */}
-                  <p
-                    className="text-[10px] text-gray-500 mb-2 truncate cursor-pointer hover:text-indigo-400 transition"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (request.equipment_id) {
-                        navigate(`/equipment/${request.equipment_id}`);
-                      }
-                    }}
-                  >
-                    {request.equipment_name}
+                  <p className="text-[10px] text-gray-500 mb-2 truncate">
+                    {request.equipment_name || "Unknown Equipment"}
                   </p>
 
                   {/* SLA Information - Only show for open requests */}
@@ -327,7 +322,11 @@ const MaintenanceTable = ({
                 {data.map((row) => (
                   <tr
                     key={row.id}
-                    onClick={() => onSelectRequest(row)}
+                    onClick={() => {
+                      if (row.equipment_id) {
+                        navigate(`/equipment/${row.equipment_id}`);
+                      }
+                    }}
                     className="group hover:bg-indigo-500/[0.04] transition-all cursor-pointer"
                   >
                     <td className="px-10 py-7">
@@ -341,16 +340,8 @@ const MaintenanceTable = ({
                         </div>
                       )}
                     </td>
-                    <td
-                      className="px-10 py-7 text-gray-400 text-xs cursor-pointer hover:text-indigo-400 transition"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (row.equipment_id) {
-                          navigate(`/equipment/${row.equipment_id}`);
-                        }
-                      }}
-                    >
-                      {row.equipment_name}
+                    <td className="px-10 py-7 text-gray-400 text-xs">
+                      {row.equipment_name || "Unknown Equipment"}
                     </td>
                     <td className="px-10 py-7 text-gray-400 text-xs">
                       {row.team_name}

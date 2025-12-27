@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "748273794330",
+    "project_id": "gearguard-72bb7",
+    "storage_bucket": "gearguard-72bb7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:748273794330:android:0cfb51c8c54d932d9f00a3",
+        "android_client_info": {
+          "package_name": "com.example.odoo_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwy8bac6PwFNjrXPZ_eFZit30Jhr9bUf4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

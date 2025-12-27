@@ -9,6 +9,25 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ============================================================================
+-- DROP EXISTING OBJECTS
+-- ============================================================================
+
+-- Drop tables in reverse dependency order
+DROP TABLE IF EXISTS maintenance_logs CASCADE;
+DROP TABLE IF EXISTS request_assignments CASCADE;
+DROP TABLE IF EXISTS maintenance_requests CASCADE;
+DROP TABLE IF EXISTS equipment CASCADE;
+DROP TABLE IF EXISTS team_members CASCADE;
+DROP TABLE IF EXISTS teams CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
+-- Drop types
+DROP TYPE IF EXISTS priority_level CASCADE;
+DROP TYPE IF EXISTS request_status CASCADE;
+DROP TYPE IF EXISTS request_type CASCADE;
+DROP TYPE IF EXISTS equipment_status CASCADE;
+
+-- ============================================================================
 -- ENUMS
 -- ============================================================================
 
@@ -31,6 +50,14 @@ CREATE TYPE request_status AS ENUM (
     'IN_PROGRESS', -- Technician is working on it
     'REPAIRED',    -- Equipment fixed and operational
     'SCRAP'        -- Equipment deemed unrepairable
+);
+
+-- Priority level enum
+CREATE TYPE priority_level AS ENUM (
+    'LOW',
+    'MEDIUM',
+    'HIGH',
+    'CRITICAL'
 );
 
 -- ============================================================================
@@ -102,10 +129,13 @@ CREATE TABLE equipment (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     serial_number VARCHAR(100) UNIQUE,
+    department VARCHAR(100), -- e.g., 'Production', 'IT', 'Logistics'
+    owner_id UUID REFERENCES users(id) ON DELETE SET NULL, -- Employee who owns/uses this equipment
     team_id UUID NOT NULL REFERENCES teams(id) ON DELETE RESTRICT,
     status equipment_status NOT NULL DEFAULT 'OPERATIONAL',
     location VARCHAR(255),
     purchase_date DATE,
+    warranty_end_date DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
@@ -117,6 +147,8 @@ CREATE TABLE equipment (
 CREATE INDEX idx_equipment_team ON equipment(team_id);
 CREATE INDEX idx_equipment_status ON equipment(status);
 CREATE INDEX idx_equipment_serial ON equipment(serial_number);
+CREATE INDEX idx_equipment_department ON equipment(department) WHERE department IS NOT NULL;
+CREATE INDEX idx_equipment_owner ON equipment(owner_id) WHERE owner_id IS NOT NULL;
 
 -- ----------------------------------------------------------------------------
 -- Maintenance Requests Table
@@ -135,8 +167,10 @@ CREATE TABLE maintenance_requests (
     status request_status NOT NULL DEFAULT 'NEW',
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
-    priority VARCHAR(20) DEFAULT 'MEDIUM', -- LOW, MEDIUM, HIGH, CRITICAL
+    priority priority_level NOT NULL DEFAULT 'MEDIUM',
     scheduled_date TIMESTAMP, -- Required for PREVENTIVE, optional for CORRECTIVE
+    duration_hours DECIMAL(5,2), -- Hours spent on repair (set when completed)
+    sla_hours INTEGER NOT NULL DEFAULT 48, -- Service Level Agreement in hours
     created_by UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -151,8 +185,10 @@ CREATE INDEX idx_requests_equipment ON maintenance_requests(equipment_id);
 CREATE INDEX idx_requests_team ON maintenance_requests(team_id);
 CREATE INDEX idx_requests_status ON maintenance_requests(status);
 CREATE INDEX idx_requests_scheduled ON maintenance_requests(scheduled_date) WHERE scheduled_date IS NOT NULL;
+CREATE INDEX idx_requests_overdue ON maintenance_requests(scheduled_date, status) WHERE scheduled_date < CURRENT_TIMESTAMP AND status NOT IN ('REPAIRED', 'SCRAP');
 CREATE INDEX idx_requests_type_status ON maintenance_requests(request_type, status);
 CREATE INDEX idx_requests_created_by ON maintenance_requests(created_by);
+CREATE INDEX idx_requests_sla ON maintenance_requests(created_at, status, sla_hours) WHERE status NOT IN ('REPAIRED', 'SCRAP');
 
 -- ----------------------------------------------------------------------------
 -- Request Assignments Table
@@ -192,7 +228,7 @@ CREATE INDEX idx_assignments_completed ON request_assignments(completed_at) WHER
 CREATE TABLE maintenance_logs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     request_id UUID NOT NULL REFERENCES maintenance_requests(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE SET NULL,
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     action VARCHAR(100) NOT NULL, -- e.g., 'status_changed', 'assigned', 'comment_added'
     details JSONB, -- Flexible storage for action-specific data
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

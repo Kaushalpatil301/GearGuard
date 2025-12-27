@@ -62,6 +62,13 @@ class AssignmentService {
       );
     }
 
+    // BUSINESS RULE: Prevent self-assignment
+    if (assigned_to === assigned_by) {
+      throw new ValidationError(
+        "Cannot self-assign requests. Assignment must be done by a manager."
+      );
+    }
+
     // Check if request is already assigned
     const existingAssignment =
       await assignmentRepository.findAssignmentByRequestId(request_id);
@@ -149,7 +156,12 @@ class AssignmentService {
       };
     } catch (error) {
       // Rollback transaction on any error
-      await assignmentRepository.rollback(client);
+      try {
+        await assignmentRepository.rollback(client);
+      } catch (rollbackError) {
+        console.error("Rollback failed:", rollbackError);
+        client.release();
+      }
 
       // Handle unique constraint violation (race condition)
       if (
@@ -255,6 +267,16 @@ class AssignmentService {
 
     if (assignment.completed_at) {
       throw new ValidationError("Assignment is already marked as completed");
+    }
+
+    // Verify request status allows completion
+    const request = await assignmentRepository.findRequestById(
+      assignment.request_id
+    );
+    if (request && request.status === "IN_PROGRESS") {
+      throw new ValidationError(
+        "Cannot complete assignment while request status is IN_PROGRESS. Update request status to REPAIRED or SCRAP first."
+      );
     }
 
     const updated = await assignmentRepository.markCompleted(

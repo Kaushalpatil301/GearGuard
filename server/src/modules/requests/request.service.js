@@ -30,6 +30,7 @@ class RequestService {
     description,
     priority,
     scheduled_date,
+    sla_hours,
     created_by,
   }) {
     // Validate required fields
@@ -119,18 +120,29 @@ class RequestService {
     // Auto-fill team_id from equipment
     const team_id = equipment.team_id;
 
-    const request = await requestRepository.create({
-      equipment_id,
-      team_id,
-      request_type,
-      title: title.trim(),
-      description: description.trim(),
-      priority: priority || PRIORITY.MEDIUM,
-      scheduled_date: scheduled_date || null,
-      created_by,
-    });
+    try {
+      const request = await requestRepository.create({
+        equipment_id,
+        team_id,
+        request_type,
+        title: title.trim(),
+        description: description.trim(),
+        priority: priority || PRIORITY.MEDIUM,
+        scheduled_date: scheduled_date || null,
+        sla_hours: sla_hours || 48,
+        created_by,
+      });
 
-    return request;
+      return request;
+    } catch (error) {
+      // Handle foreign key constraint violations
+      if (error.code === "23503") {
+        throw new NotFoundError(
+          "Referenced equipment, team, or user does not exist"
+        );
+      }
+      throw error;
+    }
   }
 
   /**
@@ -298,6 +310,16 @@ class RequestService {
       }
     }
 
+    if (updates.duration_hours !== undefined) {
+      const duration = parseFloat(updates.duration_hours);
+      if (isNaN(duration) || duration < 0 || duration > 999.99) {
+        throw new ValidationError(
+          "Duration must be a positive number less than 1000 hours"
+        );
+      }
+      updates.duration_hours = duration;
+    }
+
     const updated = await requestRepository.update(requestId, updates);
     return this._enrichRequestWithComputedFields(updated);
   }
@@ -379,6 +401,24 @@ class RequestService {
           }`
       );
     }
+  }
+
+  /**
+   * Get requests that have breached SLA
+   * @returns {Promise<Array>} Breached requests with computed SLA data
+   */
+  async getSlaBreachedRequests() {
+    const requests = await requestRepository.findSlaBreached();
+    return requests;
+  }
+
+  /**
+   * Get requests at risk of breaching SLA (within 20% of breach)
+   * @returns {Promise<Array>} At-risk requests with computed SLA data
+   */
+  async getSlaAtRiskRequests() {
+    const requests = await requestRepository.findSlaAtRisk();
+    return requests;
   }
 
   /**

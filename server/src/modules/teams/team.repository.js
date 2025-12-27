@@ -32,15 +32,20 @@ class TeamRepository {
 
   /**
    * Find all active teams
+   * @param {Object} pagination - { limit?, offset? }
    * @returns {Promise<Array>} List of teams
    */
-  async findAll() {
+  async findAll(pagination = {}) {
+    const limit = pagination.limit || 100;
+    const offset = pagination.offset || 0;
+
     const query = `
       SELECT * FROM teams
       WHERE is_active = TRUE
       ORDER BY name ASC
+      LIMIT $1 OFFSET $2
     `;
-    const result = await db.query(query);
+    const result = await db.query(query, [limit, offset]);
     return result.rows;
   }
 

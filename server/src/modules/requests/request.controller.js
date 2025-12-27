@@ -151,6 +151,42 @@ class RequestController {
       next(error);
     }
   }
+
+  /**
+   * Get SLA breached requests
+   * GET /api/requests/sla/breached
+   */
+  async getSlaBreachedRequests(req, res, next) {
+    try {
+      const requests = await requestService.getSlaBreachedRequests();
+
+      res.status(200).json({
+        success: true,
+        data: requests,
+        count: requests.length,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Get SLA at-risk requests (within 20% of breach)
+   * GET /api/requests/sla/at-risk
+   */
+  async getSlaAtRiskRequests(req, res, next) {
+    try {
+      const requests = await requestService.getSlaAtRiskRequests();
+
+      res.status(200).json({
+        success: true,
+        data: requests,
+        count: requests.length,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new RequestController();

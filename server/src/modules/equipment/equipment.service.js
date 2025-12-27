@@ -17,9 +17,12 @@ class EquipmentService {
     name,
     description,
     serial_number,
+    department,
+    owner_id,
     team_id,
     location,
     purchase_date,
+    warranty_end_date,
   }) {
     // Validate required fields
     if (!name || name.trim().length === 0) {
@@ -45,6 +48,14 @@ class EquipmentService {
       throw new NotFoundError("Maintenance team not found or inactive");
     }
 
+    // Verify owner exists if provided
+    if (owner_id) {
+      const ownerExists = await equipmentRepository.teamExists(owner_id);
+      if (!ownerExists) {
+        throw new NotFoundError("Owner user not found or inactive");
+      }
+    }
+
     // Check serial number uniqueness
     const existing = await equipmentRepository.findBySerialNumber(
       serial_number.trim()
@@ -60,9 +71,12 @@ class EquipmentService {
         name: name.trim(),
         description: description?.trim() || null,
         serial_number: serial_number.trim(),
+        department: department?.trim() || null,
+        owner_id: owner_id || null,
         team_id,
         location: location?.trim() || null,
         purchase_date: purchase_date || null,
+        warranty_end_date: warranty_end_date || null,
       });
 
       return equipment;

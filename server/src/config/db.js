@@ -23,6 +23,19 @@ pool.on("error", (err) => {
 
 const query = (text, params) => pool.query(text, params);
 
+const healthCheck = async () => {
+  try {
+    const result = await pool.query("SELECT 1 as health");
+    return {
+      healthy: true,
+      timestamp: new Date(),
+      connections: pool.totalCount,
+    };
+  } catch (error) {
+    return { healthy: false, error: error.message, timestamp: new Date() };
+  }
+};
+
 const withTransaction = async (callback) => {
   const client = await pool.connect();
 
@@ -43,4 +56,5 @@ module.exports = {
   pool,
   query,
   withTransaction,
+  healthCheck,
 };

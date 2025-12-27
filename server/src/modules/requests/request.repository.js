@@ -14,12 +14,13 @@ class RequestRepository {
     description,
     priority,
     scheduled_date,
+    sla_hours,
     created_by,
   }) {
     const query = `
       INSERT INTO maintenance_requests 
-        (equipment_id, team_id, request_type, title, description, priority, scheduled_date, created_by)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        (equipment_id, team_id, request_type, title, description, priority, scheduled_date, sla_hours, created_by)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *
     `;
     const result = await db.query(query, [
@@ -30,6 +31,7 @@ class RequestRepository {
       description,
       priority || "MEDIUM",
       scheduled_date || null,
+      sla_hours || 48,
       created_by,
     ]);
     return result.rows[0];
@@ -47,6 +49,60 @@ class RequestRepository {
     `;
     const result = await db.query(query, [requestId]);
     return result.rows[0] || null;
+  }
+
+  /**
+   * Get SLA breached requests (dynamically computed)
+   * @returns {Promise<Array>} Requests that have breached SLA
+   */
+  async findSlaBreached() {
+    const query = `
+      SELECT 
+        mr.*,
+        e.name as equipment_name,
+        e.serial_number,
+        t.name as team_name,
+        (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600)::DECIMAL(10,2) as hours_elapsed,
+        CASE 
+          WHEN (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) > mr.sla_hours 
+          THEN true 
+          ELSE false 
+        END as is_breached
+      FROM maintenance_requests mr
+      JOIN equipment e ON mr.equipment_id = e.id
+      JOIN teams t ON mr.team_id = t.id
+      WHERE mr.status NOT IN ('REPAIRED', 'SCRAP')
+        AND (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) > mr.sla_hours
+      ORDER BY mr.created_at ASC
+    `;
+    const result = await db.query(query);
+    return result.rows;
+  }
+
+  /**
+   * Get SLA at-risk requests (within 20% of breach)
+   * @returns {Promise<Array>} Requests at risk of SLA breach
+   */
+  async findSlaAtRisk() {
+    const query = `
+      SELECT 
+        mr.*,
+        e.name as equipment_name,
+        e.serial_number,
+        t.name as team_name,
+        (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600)::DECIMAL(10,2) as hours_elapsed,
+        (mr.sla_hours - (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600))::DECIMAL(10,2) as hours_remaining,
+        ((EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) / mr.sla_hours * 100)::DECIMAL(5,2) as sla_percentage
+      FROM maintenance_requests mr
+      JOIN equipment e ON mr.equipment_id = e.id
+      JOIN teams t ON mr.team_id = t.id
+      WHERE mr.status NOT IN ('REPAIRED', 'SCRAP')
+        AND (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) <= mr.sla_hours
+        AND (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) >= (mr.sla_hours * 0.8)
+      ORDER BY hours_remaining ASC
+    `;
+    const result = await db.query(query);
+    return result.rows;
   }
 
   /**
@@ -81,7 +137,7 @@ class RequestRepository {
 
   /**
    * Find all requests with optional filters
-   * @param {Object} filters - { status?, team_id?, equipment_id?, request_type?, priority? }
+   * @param {Object} filters - { status?, team_id?, equipment_id?, request_type?, priority?, limit?, offset? }
    * @returns {Promise<Array>} List of requests
    */
   async findAll(filters = {}) {
@@ -131,6 +187,11 @@ class RequestRepository {
     }
 
     query += ` ORDER BY mr.created_at DESC`;
+
+    const limit = filters.limit || 100;
+    const offset = filters.offset || 0;
+    query += ` LIMIT $${paramCount++} OFFSET $${paramCount++}`;
+    values.push(limit, offset);
 
     const result = await db.query(query, values);
     return result.rows;
@@ -182,6 +243,11 @@ class RequestRepository {
     if (updates.scheduled_date !== undefined) {
       fields.push(`scheduled_date = $${paramCount++}`);
       values.push(updates.scheduled_date);
+    }
+
+    if (updates.duration_hours !== undefined) {
+      fields.push(`duration_hours = $${paramCount++}`);
+      values.push(updates.duration_hours);
     }
 
     if (fields.length === 0) {

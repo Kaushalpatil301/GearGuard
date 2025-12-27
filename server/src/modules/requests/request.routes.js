@@ -4,6 +4,8 @@ const requestController = require("./request.controller");
 
 router.get("/views/kanban", requestController.getKanbanView);
 router.get("/views/calendar", requestController.getCalendarView);
+router.get("/sla/breached", requestController.getSlaBreachedRequests);
+router.get("/sla/at-risk", requestController.getSlaAtRiskRequests);
 
 router.post("/", requestController.createRequest);
 router.get("/", requestController.getAllRequests);

@@ -6,7 +6,7 @@
 -- ============================================================================
 
 -- Clear existing data (optional - use with caution)
--- TRUNCATE TABLE maintenance_logs, request_assignments, maintenance_requests, equipment, team_members, teams, users RESTART IDENTITY CASCADE;
+TRUNCATE TABLE maintenance_logs, request_assignments, maintenance_requests, equipment, team_members, teams, users RESTART IDENTITY CASCADE;
 
 -- ============================================================================
 -- USERS (Technicians, Managers, Operators)
@@ -61,33 +61,33 @@ INSERT INTO team_members (team_id, user_id) VALUES
 -- EQUIPMENT (Assets across different locations)
 -- ============================================================================
 
-INSERT INTO equipment (id, name, description, serial_number, team_id, status, location, purchase_date) VALUES
+INSERT INTO equipment (id, name, description, serial_number, department, owner_id, team_id, status, location, purchase_date, warranty_end_date) VALUES
 -- IT Equipment
-('eeee1111-1111-1111-1111-111111111111', 'Dell PowerEdge Server', 'Main production server', 'SRV-DEL-2023-001', '11111111-1111-1111-1111-111111111111', 'OPERATIONAL', 'Mumbai Data Center', '2023-01-15'),
-('eeee1111-2222-2222-2222-222222222222', 'HP LaserJet Printer', 'Office floor printer', 'PRT-HP-2023-045', '11111111-1111-1111-1111-111111111111', 'OPERATIONAL', 'Pune Office - 3rd Floor', '2023-03-20'),
-('eeee1111-3333-3333-3333-333333333333', 'Cisco Network Switch', '48-port gigabit switch', 'NET-CISCO-2022-089', '11111111-1111-1111-1111-111111111111', 'UNDER_MAINTENANCE', 'Bangalore Server Room', '2022-11-10'),
+('eeee1111-1111-1111-1111-111111111111', 'Dell PowerEdge Server', 'Main production server', 'SRV-DEL-2023-001', 'IT', 'a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d', '11111111-1111-1111-1111-111111111111', 'OPERATIONAL', 'Mumbai Data Center', '2023-01-15', '2026-01-15'),
+('eeee1111-2222-2222-2222-222222222222', 'HP LaserJet Printer', 'Office floor printer', 'PRT-HP-2023-045', 'Administration', 'b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e', '11111111-1111-1111-1111-111111111111', 'OPERATIONAL', 'Pune Office - 3rd Floor', '2023-03-20', '2025-03-20'),
+('eeee1111-3333-3333-3333-333333333333', 'Cisco Network Switch', '48-port gigabit switch', 'NET-CISCO-2022-089', 'IT', 'a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d', '11111111-1111-1111-1111-111111111111', 'UNDER_MAINTENANCE', 'Bangalore Server Room', '2022-11-10', '2025-11-10'),
 
 -- Mechanical Equipment
-('eeee2222-1111-1111-1111-111111111111', 'CNC Milling Machine', 'Precision milling for parts', 'CNC-HAM-2021-034', '22222222-2222-2222-2222-222222222222', 'OPERATIONAL', 'Chennai Factory - Shop Floor A', '2021-06-15'),
-('eeee2222-2222-2222-2222-222222222222', 'Hydraulic Press', '500-ton capacity hydraulic press', 'HYD-PRES-2020-012', '22222222-2222-2222-2222-222222222222', 'OPERATIONAL', 'Ahmedabad Plant - Assembly Line 2', '2020-08-25'),
-('eeee2222-3333-3333-3333-333333333333', 'Lathe Machine', 'Heavy-duty lathe for metal turning', 'LAT-ACE-2019-067', '22222222-2222-2222-2222-222222222222', 'SCRAPPED', 'Coimbatore Workshop', '2019-02-10'),
+('eeee2222-1111-1111-1111-111111111111', 'CNC Milling Machine', 'Precision milling for parts', 'CNC-HAM-2021-034', 'Production', 'c3d4e5f6-a7b8-6c7d-0e1f-2a3b4c5d6e7f', '22222222-2222-2222-2222-222222222222', 'OPERATIONAL', 'Chennai Factory - Shop Floor A', '2021-06-15', '2024-06-15'),
+('eeee2222-2222-2222-2222-222222222222', 'Hydraulic Press', '500-ton capacity hydraulic press', 'HYD-PRES-2020-012', 'Production', 'c3d4e5f6-a7b8-6c7d-0e1f-2a3b4c5d6e7f', '22222222-2222-2222-2222-222222222222', 'OPERATIONAL', 'Ahmedabad Plant - Assembly Line 2', '2020-08-25', '2023-08-25'),
+('eeee2222-3333-3333-3333-333333333333', 'Lathe Machine', 'Heavy-duty lathe for metal turning', 'LAT-ACE-2019-067', 'Production', 'd4e5f6a7-b8c9-7d8e-1f2a-3b4c5d6e7f8a', '22222222-2222-2222-2222-222222222222', 'SCRAPPED', 'Coimbatore Workshop', '2019-02-10', '2022-02-10'),
 
 -- Electrical Equipment
-('eeee3333-1111-1111-1111-111111111111', 'Diesel Generator', '500 KVA backup generator', 'DG-CUMMINS-2022-023', '33333333-3333-3333-3333-333333333333', 'OPERATIONAL', 'Hyderabad Warehouse - Backyard', '2022-05-18'),
-('eeee3333-2222-2222-2222-222222222222', 'Distribution Panel', 'Main electrical distribution board', 'DB-SIEMENS-2021-156', '33333333-3333-3333-3333-333333333333', 'OPERATIONAL', 'Delhi Factory - Electrical Room', '2021-09-12'),
-('eeee3333-3333-3333-3333-333333333333', 'UPS System', '100 KVA uninterruptible power supply', 'UPS-APC-2023-089', '33333333-3333-3333-3333-333333333333', 'UNDER_MAINTENANCE', 'Kolkata Office - Server Room', '2023-04-22'),
+('eeee3333-1111-1111-1111-111111111111', 'Diesel Generator', '500 KVA backup generator', 'DG-CUMMINS-2022-023', 'Facilities', 'e5f6a7b8-c9d0-8e9f-2a3b-4c5d6e7f8a9b', '33333333-3333-3333-3333-333333333333', 'OPERATIONAL', 'Hyderabad Warehouse - Backyard', '2022-05-18', '2027-05-18'),
+('eeee3333-2222-2222-2222-222222222222', 'Distribution Panel', 'Main electrical distribution board', 'DB-SIEMENS-2021-156', 'Facilities', 'e5f6a7b8-c9d0-8e9f-2a3b-4c5d6e7f8a9b', '33333333-3333-3333-3333-333333333333', 'OPERATIONAL', 'Delhi Factory - Electrical Room', '2021-09-12', '2031-09-12'),
+('eeee3333-3333-3333-3333-333333333333', 'UPS System', '100 KVA uninterruptible power supply', 'UPS-APC-2023-089', 'IT', 'f6a7b8c9-d0e1-9f0a-3b4c-5d6e7f8a9b0c', '33333333-3333-3333-3333-333333333333', 'UNDER_MAINTENANCE', 'Kolkata Office - Server Room', '2023-04-22', '2028-04-22'),
 
 -- HVAC Equipment
-('eeee4444-1111-1111-1111-111111111111', 'Central AC Unit', '20-ton central air conditioning', 'AC-VOLTAS-2022-034', '44444444-4444-4444-4444-444444444444', 'OPERATIONAL', 'Gurgaon Office - Rooftop', '2022-03-08'),
-('eeee4444-2222-2222-2222-222222222222', 'Industrial Exhaust Fan', 'Heavy-duty ventilation system', 'FAN-USHA-2021-178', '44444444-4444-4444-4444-444444444444', 'OPERATIONAL', 'Noida Manufacturing Unit', '2021-07-14');
+('eeee4444-1111-1111-1111-111111111111', 'Central AC Unit', '20-ton central air conditioning', 'AC-VOLTAS-2022-034', 'Facilities', NULL, '44444444-4444-4444-4444-444444444444', 'OPERATIONAL', 'Gurgaon Office - Rooftop', '2022-03-08', '2027-03-08'),
+('eeee4444-2222-2222-2222-222222222222', 'Industrial Exhaust Fan', 'Heavy-duty ventilation system', 'FAN-USHA-2021-178', 'Production', NULL, '44444444-4444-4444-4444-444444444444', 'OPERATIONAL', 'Noida Manufacturing Unit', '2021-07-14', '2026-07-14');
 
 -- ============================================================================
 -- MAINTENANCE REQUESTS
 -- ============================================================================
 
-INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, status, title, description, priority, scheduled_date, created_by) VALUES
+INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, status, title, description, priority, scheduled_date, sla_hours, created_by) VALUES
 -- New Requests (Not yet assigned)
-('rrrr1111-1111-1111-1111-111111111111', 
+('111a1111-1111-1111-1111-111111111111', 
  'eeee1111-2222-2222-2222-222222222222', 
  '11111111-1111-1111-1111-111111111111', 
  'CORRECTIVE', 
@@ -96,9 +96,10 @@ INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, statu
  'HP LaserJet printer has frequent paper jams. Need to inspect and clean the rollers.',
  'MEDIUM',
  NULL,
+ 48,
  'c9d0e1f2-a3b4-2c3d-6e7f-8a9b0c1d2e3f'), -- Rahul Verma
 
-('rrrr1111-2222-2222-2222-222222222222', 
+('111a1111-2222-2222-2222-222222222222', 
  'eeee2222-1111-1111-1111-111111111111', 
  '22222222-2222-2222-2222-222222222222', 
  'PREVENTIVE', 
@@ -107,9 +108,10 @@ INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, statu
  'Scheduled preventive maintenance including lubrication, calibration, and safety checks.',
  'HIGH',
  '2025-01-15 10:00:00',
+ 24,
  'd0e1f2a3-b4c5-3d4e-7f8a-9b0c1d2e3f4a'), -- Deepika Joshi
 
-('rrrr1111-3333-3333-3333-333333333333', 
+('111a1111-3333-3333-3333-333333333333', 
  'eeee3333-1111-1111-1111-111111111111', 
  '33333333-3333-3333-3333-333333333333', 
  'CORRECTIVE', 
@@ -118,10 +120,11 @@ INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, statu
  'Diesel generator failed to start during power outage test. Battery might be dead.',
  'CRITICAL',
  NULL,
+ 4,
  'c9d0e1f2-a3b4-2c3d-6e7f-8a9b0c1d2e3f'), -- Rahul Verma
 
 -- In Progress Requests (Already assigned)
-('rrrr2222-1111-1111-1111-111111111111', 
+('222a2222-1111-1111-1111-111111111111', 
  'eeee1111-3333-3333-3333-333333333333', 
  '11111111-1111-1111-1111-111111111111', 
  'CORRECTIVE', 
@@ -130,9 +133,10 @@ INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, statu
  'Port 24 on Cisco switch is not responding. Need to diagnose and replace if necessary.',
  'HIGH',
  NULL,
+ 24,
  'e1f2a3b4-c5d6-4e5f-8a9b-0c1d2e3f4a5b'), -- Manoj Gupta
 
-('rrrr2222-2222-2222-2222-222222222222', 
+('222a2222-2222-2222-2222-222222222222', 
  'eeee3333-3333-3333-3333-333333333333', 
  '33333333-3333-3333-3333-333333333333', 
  'PREVENTIVE', 
@@ -141,10 +145,11 @@ INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, statu
  'Annual battery replacement for UPS system to ensure backup power reliability.',
  'MEDIUM',
  '2024-12-28 14:00:00',
+ 48,
  'd0e1f2a3-b4c5-3d4e-7f8a-9b0c1d2e3f4a'), -- Deepika Joshi
 
 -- Completed Requests
-('rrrr3333-1111-1111-1111-111111111111', 
+('333a3333-1111-1111-1111-111111111111', 
  'eeee4444-1111-1111-1111-111111111111', 
  '44444444-4444-4444-4444-444444444444', 
  'CORRECTIVE', 
@@ -153,9 +158,10 @@ INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, statu
  'Central AC unit was not maintaining temperature. Refrigerant was recharged.',
  'HIGH',
  NULL,
+ 24,
  'c9d0e1f2-a3b4-2c3d-6e7f-8a9b0c1d2e3f'), -- Rahul Verma
 
-('rrrr3333-2222-2222-2222-222222222222', 
+('333a3333-2222-2222-2222-222222222222', 
  'eeee2222-2222-2222-2222-222222222222', 
  '22222222-2222-2222-2222-222222222222', 
  'PREVENTIVE', 
@@ -164,10 +170,11 @@ INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, statu
  'Routine inspection completed. All hydraulic seals and pressure gauges checked and certified.',
  'MEDIUM',
  '2024-12-15 09:00:00',
+ 72,
  'd0e1f2a3-b4c5-3d4e-7f8a-9b0c1d2e3f4a'), -- Deepika Joshi
 
 -- Scrapped Equipment Request
-('rrrr4444-1111-1111-1111-111111111111', 
+('444a4444-1111-1111-1111-111111111111', 
  'eeee2222-3333-3333-3333-333333333333', 
  '22222222-2222-2222-2222-222222222222', 
  'CORRECTIVE', 
@@ -176,6 +183,7 @@ INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, statu
  'Motor seized completely. Equipment is beyond economical repair. Recommended for scrapping.',
  'LOW',
  NULL,
+ 96,
  'e1f2a3b4-c5d6-4e5f-8a9b-0c1d2e3f4a5b'); -- Manoj Gupta
 
 -- ============================================================================
@@ -184,16 +192,16 @@ INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, statu
 
 INSERT INTO request_assignments (id, request_id, assigned_to, assigned_by, assigned_at, completed_at, notes) VALUES
 -- Completed assignment
-('aaaa1111-1111-1111-1111-111111111111',
- 'rrrr3333-1111-1111-1111-111111111111',
+('aaa11111-1111-1111-1111-111111111111',
+ '333a3333-1111-1111-1111-111111111111',
  'a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d', -- Rajesh Kumar (IT)
  'a7b8c9d0-e1f2-0a1b-4c5d-6e7f8a9b0c1d', -- Assigned by Suresh Mehta
  '2024-12-20 08:30:00',
  '2024-12-21 16:45:00',
  'Refrigerant recharged successfully. AC working normally now.'),
 
-('aaaa2222-2222-2222-2222-222222222222',
- 'rrrr3333-2222-2222-2222-222222222222',
+('aaa22222-2222-2222-2222-222222222222',
+ '333a3333-2222-2222-2222-222222222222',
  'c3d4e5f6-a7b8-6c7d-0e1f-2a3b4c5d6e7f', -- Amit Patel (Mechanical)
  'a7b8c9d0-e1f2-0a1b-4c5d-6e7f8a9b0c1d', -- Assigned by Suresh Mehta
  '2024-12-14 10:00:00',
@@ -201,16 +209,16 @@ INSERT INTO request_assignments (id, request_id, assigned_to, assigned_by, assig
  'All safety checks passed. Equipment certified for next 6 months.'),
 
 -- Active assignments (not yet completed)
-('aaaa3333-1111-1111-1111-111111111111',
- 'rrrr2222-1111-1111-1111-111111111111',
+('aaa33333-1111-1111-1111-111111111111',
+ '222a2222-1111-1111-1111-111111111111',
  'a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d', -- Rajesh Kumar (IT)
  'b8c9d0e1-f2a3-1b2c-5d6e-7f8a9b0c1d2e', -- Assigned by Kavita Nair
  '2024-12-26 11:00:00',
  NULL,
  NULL),
 
-('aaaa3333-2222-2222-2222-222222222222',
- 'rrrr2222-2222-2222-2222-222222222222',
+('aaa33333-2222-2222-2222-222222222222',
+ '222a2222-2222-2222-2222-222222222222',
  'e5f6a7b8-c9d0-8e9f-2a3b-4c5d6e7f8a9b', -- Vikram Singh (Electrical)
  'a7b8c9d0-e1f2-0a1b-4c5d-6e7f8a9b0c1d', -- Assigned by Suresh Mehta
  '2024-12-27 09:30:00',
@@ -218,8 +226,8 @@ INSERT INTO request_assignments (id, request_id, assigned_to, assigned_by, assig
  NULL),
 
 -- Scrapped equipment assignment
-('aaaa4444-1111-1111-1111-111111111111',
- 'rrrr4444-1111-1111-1111-111111111111',
+('aaa44444-1111-1111-1111-111111111111',
+ '444a4444-1111-1111-1111-111111111111',
  'd4e5f6a7-b8c9-7d8e-1f2a-3b4c5d6e7f8a', -- Sneha Reddy (Mechanical)
  'b8c9d0e1-f2a3-1b2c-5d6e-7f8a9b0c1d2e', -- Assigned by Kavita Nair
  '2024-12-10 14:00:00',
@@ -232,60 +240,60 @@ INSERT INTO request_assignments (id, request_id, assigned_to, assigned_by, assig
 
 INSERT INTO maintenance_logs (request_id, user_id, action, details) VALUES
 -- Logs for completed AC repair
-('rrrr3333-1111-1111-1111-111111111111',
+('333a3333-1111-1111-1111-111111111111',
  'a7b8c9d0-e1f2-0a1b-4c5d-6e7f8a9b0c1d',
  'request_assigned',
  '{"assigned_to": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d", "assigned_to_name": "Rajesh Kumar", "previous_status": "NEW", "new_status": "IN_PROGRESS"}'),
 
-('rrrr3333-1111-1111-1111-111111111111',
+('333a3333-1111-1111-1111-111111111111',
  'a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d',
  'comment_added',
  '{"comment": "Diagnosed issue. Refrigerant level is low. Will recharge today.", "timestamp": "2024-12-20T12:30:00Z"}'),
 
-('rrrr3333-1111-1111-1111-111111111111',
+('333a3333-1111-1111-1111-111111111111',
  'a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d',
  'status_changed',
  '{"old_status": "IN_PROGRESS", "new_status": "REPAIRED", "timestamp": "2024-12-21T16:45:00Z"}'),
 
 -- Logs for hydraulic press maintenance
-('rrrr3333-2222-2222-2222-222222222222',
+('333a3333-2222-2222-2222-222222222222',
  'a7b8c9d0-e1f2-0a1b-4c5d-6e7f8a9b0c1d',
  'request_assigned',
  '{"assigned_to": "c3d4e5f6-a7b8-6c7d-0e1f-2a3b4c5d6e7f", "assigned_to_name": "Amit Patel", "previous_status": "NEW", "new_status": "IN_PROGRESS"}'),
 
-('rrrr3333-2222-2222-2222-222222222222',
+('333a3333-2222-2222-2222-222222222222',
  'c3d4e5f6-a7b8-6c7d-0e1f-2a3b4c5d6e7f',
  'comment_added',
  '{"comment": "All hydraulic seals inspected. No leaks found. Pressure test successful.", "timestamp": "2024-12-15T14:00:00Z"}'),
 
-('rrrr3333-2222-2222-2222-222222222222',
+('333a3333-2222-2222-2222-222222222222',
  'c3d4e5f6-a7b8-6c7d-0e1f-2a3b4c5d6e7f',
  'status_changed',
  '{"old_status": "IN_PROGRESS", "new_status": "REPAIRED", "timestamp": "2024-12-15T15:30:00Z"}'),
 
 -- Logs for network switch issue
-('rrrr2222-1111-1111-1111-111111111111',
+('222a2222-1111-1111-1111-111111111111',
  'b8c9d0e1-f2a3-1b2c-5d6e-7f8a9b0c1d2e',
  'request_assigned',
  '{"assigned_to": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d", "assigned_to_name": "Rajesh Kumar", "previous_status": "NEW", "new_status": "IN_PROGRESS"}'),
 
-('rrrr2222-1111-1111-1111-111111111111',
+('222a2222-1111-1111-1111-111111111111',
  'a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d',
  'priority_changed',
  '{"old_priority": "MEDIUM", "new_priority": "HIGH", "timestamp": "2024-12-26T13:00:00Z"}'),
 
 -- Logs for scrapped equipment
-('rrrr4444-1111-1111-1111-111111111111',
+('444a4444-1111-1111-1111-111111111111',
  'b8c9d0e1-f2a3-1b2c-5d6e-7f8a9b0c1d2e',
  'request_assigned',
  '{"assigned_to": "d4e5f6a7-b8c9-7d8e-1f2a-3b4c5d6e7f8a", "assigned_to_name": "Sneha Reddy", "previous_status": "NEW", "new_status": "IN_PROGRESS"}'),
 
-('rrrr4444-1111-1111-1111-111111111111',
+('444a4444-1111-1111-1111-111111111111',
  'd4e5f6a7-b8c9-7d8e-1f2a-3b4c5d6e7f8a',
  'equipment_scrapped',
  '{"equipment_id": "eeee2222-3333-3333-3333-333333333333", "equipment_name": "Lathe Machine", "timestamp": "2024-12-11T17:00:00Z"}'),
 
-('rrrr4444-1111-1111-1111-111111111111',
+('444a4444-1111-1111-1111-111111111111',
  'd4e5f6a7-b8c9-7d8e-1f2a-3b4c5d6e7f8a',
  'status_changed',
  '{"old_status": "IN_PROGRESS", "new_status": "SCRAP", "timestamp": "2024-12-11T17:00:00Z"}');

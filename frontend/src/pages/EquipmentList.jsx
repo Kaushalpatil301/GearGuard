@@ -534,10 +534,20 @@ const EquipmentList = () => {
                 )}
             </div>
 
-            <div className="p-6 border-t border-gray-800">
+            <div className="p-6 border-t border-gray-800 flex gap-3">
+              <button
+                onClick={() => {
+                  closeRequestsModal();
+                  navigate(`/equipment/${selectedEquipment.id}`);
+                }}
+                className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-medium transition flex items-center justify-center gap-2"
+              >
+                <ExternalLink size={16} />
+                View Equipment Details
+              </button>
               <button
                 onClick={closeRequestsModal}
-                className="w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg font-medium transition"
+                className="px-6 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg font-medium transition"
               >
                 Close
               </button>
@@ -548,3 +558,5 @@ const EquipmentList = () => {
     </div>
   );
 };
+
+export default EquipmentList;

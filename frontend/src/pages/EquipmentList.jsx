@@ -301,12 +301,7 @@ const EquipmentList = () => {
                       }`}
                     >
                       <td className="px-6 py-4 text-sm font-semibold text-gray-100">
-                        <button
-                          onClick={() => navigate(`/equipment/${item.id}`)}
-                          className="hover:text-indigo-400 transition cursor-pointer underline-offset-4 hover:underline"
-                        >
-                          {item.name}
-                        </button>
+                        {item.name}
                       </td>
                       <td className="px-6 py-4 text-sm font-mono text-gray-400">
                         {item.serial_number}
@@ -553,5 +548,3 @@ const EquipmentList = () => {
     </div>
   );
 };
-
-export default EquipmentList;

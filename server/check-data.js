@@ -1,24 +1,30 @@
-const db = require('./src/config/db');
+const db = require("./src/config/db");
 
 async function checkAllData() {
-  console.log('\n=== GEARGUARD DATABASE CHECK ===\n');
+  console.log("\n=== GEARGUARD DATABASE CHECK ===\n");
 
   try {
     // Total counts
-    const requests = await db.query('SELECT COUNT(*) as total FROM maintenance_requests');
-    console.log('📊 Total Maintenance Requests:', requests.rows[0].total);
+    const requests = await db.query(
+      "SELECT COUNT(*) as total FROM maintenance_requests"
+    );
+    console.log("📊 Total Maintenance Requests:", requests.rows[0].total);
 
-    const equipment = await db.query('SELECT COUNT(*) as total FROM equipment');
-    console.log('📊 Total Equipment:', equipment.rows[0].total);
+    const equipment = await db.query("SELECT COUNT(*) as total FROM equipment");
+    console.log("📊 Total Equipment:", equipment.rows[0].total);
 
-    const teams = await db.query('SELECT COUNT(*) as total FROM teams WHERE is_active = TRUE');
-    console.log('📊 Active Teams:', teams.rows[0].total);
+    const teams = await db.query(
+      "SELECT COUNT(*) as total FROM teams WHERE is_active = TRUE"
+    );
+    console.log("📊 Active Teams:", teams.rows[0].total);
 
-    const users = await db.query("SELECT COUNT(*) as total FROM users WHERE role = 'technician' AND is_active = TRUE");
-    console.log('📊 Active Technicians:', users.rows[0].total);
+    const users = await db.query(
+      "SELECT COUNT(*) as total FROM users WHERE role = 'technician' AND is_active = TRUE"
+    );
+    console.log("📊 Active Technicians:", users.rows[0].total);
 
     // Requests by Team
-    console.log('\n--- Requests by Team ---');
+    console.log("\n--- Requests by Team ---");
     const teamRequests = await db.query(`
       SELECT 
         t.name as team_name,
@@ -33,19 +39,23 @@ async function checkAllData() {
       GROUP BY t.name
       ORDER BY total_requests DESC
     `);
-    teamRequests.rows.forEach(row => {
-      console.log(`  ${row.team_name}: ${row.total_requests} total (${row.new_requests} new, ${row.in_progress} in progress, ${row.repaired} repaired, ${row.scrap} scrap)`);
+    teamRequests.rows.forEach((row) => {
+      console.log(
+        `  ${row.team_name}: ${row.total_requests} total (${row.new_requests} new, ${row.in_progress} in progress, ${row.repaired} repaired, ${row.scrap} scrap)`
+      );
     });
 
     // Equipment by Status
-    console.log('\n--- Equipment by Status ---');
-    const equipmentStatus = await db.query('SELECT status, COUNT(*) as total FROM equipment GROUP BY status ORDER BY total DESC');
-    equipmentStatus.rows.forEach(row => {
+    console.log("\n--- Equipment by Status ---");
+    const equipmentStatus = await db.query(
+      "SELECT status, COUNT(*) as total FROM equipment GROUP BY status ORDER BY total DESC"
+    );
+    equipmentStatus.rows.forEach((row) => {
       console.log(`  ${row.status}: ${row.total}`);
     });
 
     // Requests by Priority
-    console.log('\n--- Requests by Priority ---');
+    console.log("\n--- Requests by Priority ---");
     const priorities = await db.query(`
       SELECT priority, COUNT(*) as total 
       FROM maintenance_requests 
@@ -57,12 +67,12 @@ async function checkAllData() {
         WHEN 'LOW' THEN 4 
       END
     `);
-    priorities.rows.forEach(row => {
+    priorities.rows.forEach((row) => {
       console.log(`  ${row.priority}: ${row.total}`);
     });
 
     // Technician Workload
-    console.log('\n--- Technician Workload ---');
+    console.log("\n--- Technician Workload ---");
     const techWorkload = await db.query(`
       SELECT 
         u.name as technician_name,
@@ -76,12 +86,14 @@ async function checkAllData() {
       GROUP BY u.name
       ORDER BY total_assignments DESC
     `);
-    techWorkload.rows.forEach(row => {
-      console.log(`  ${row.technician_name}: ${row.total_assignments} total (${row.active} active, ${row.completed} completed)`);
+    techWorkload.rows.forEach((row) => {
+      console.log(
+        `  ${row.technician_name}: ${row.total_assignments} total (${row.active} active, ${row.completed} completed)`
+      );
     });
 
     // SLA Status
-    console.log('\n--- SLA Status ---');
+    console.log("\n--- SLA Status ---");
     const sla = await db.query(`
       SELECT 
         mr.priority,
@@ -100,12 +112,14 @@ async function checkAllData() {
         WHEN 'LOW' THEN 4 
       END
     `);
-    sla.rows.forEach(row => {
-      console.log(`  ${row.priority}: ${row.breached}/${row.total_active} breached`);
+    sla.rows.forEach((row) => {
+      console.log(
+        `  ${row.priority}: ${row.breached}/${row.total_active} breached`
+      );
     });
 
     // Request Aging
-    console.log('\n--- Request Aging (Active Only) ---');
+    console.log("\n--- Request Aging (Active Only) ---");
     const aging = await db.query(`
       SELECT 
         CASE 
@@ -130,15 +144,14 @@ async function checkAllData() {
           WHEN '30+ days' THEN 6
         END
     `);
-    aging.rows.forEach(row => {
+    aging.rows.forEach((row) => {
       console.log(`  ${row.age_bucket}: ${row.request_count} requests`);
     });
 
-    console.log('\n=== CHECK COMPLETE ===\n');
+    console.log("\n=== CHECK COMPLETE ===\n");
     process.exit(0);
-
   } catch (err) {
-    console.error('\n❌ Error:', err.message);
+    console.error("\n❌ Error:", err.message);
     console.error(err.stack);
     process.exit(1);
   }

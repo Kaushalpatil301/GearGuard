@@ -1,22 +1,87 @@
-import React, { useState } from 'react';
-import Navbar from '../components/Navbar';
-import MaintenanceTable from '../components/MaintenanceTable';
-import MaintenanceDetail from '../components/MaintenanceDetail';
-import NewRequestForm from '../components/NewRequestForm';
-import StatusFooter from '../components/StatusFooter';
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import MaintenanceTable from "../components/MaintenanceTable";
+import MaintenanceDetail from "../components/MaintenanceDetail";
+import NewRequestForm from "../components/NewRequestForm";
+import StatusFooter from "../components/StatusFooter";
+import { API_BASE_URL } from "../config/api";
 
 const Dashboard = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const location = useLocation();
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [kanbanData, setKanbanData] = useState({
+    NEW: [],
+    IN_PROGRESS: [],
+    REPAIRED: [],
+    SCRAP: [],
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [tableData, setTableData] = useState([
-    { id: 1, subject: 'Test activity', employee: 'Mitchell Admin', status: 'New Request', date: '12/18/2025' },
-    { id: 2, subject: 'Server Maintenance', employee: 'Sarah Chen', status: 'In Progress', date: '12/20/2025' }
-  ]);
+  // Fetch Kanban data on mount and when returning from other views
+  useEffect(() => {
+    if (!isCreating && !selectedRequest) {
+      fetchKanbanData();
+    }
+  }, [isCreating, selectedRequest]);
 
-  const filteredData = tableData.filter(item => 
-    item.subject.toLowerCase().includes(searchTerm.toLowerCase())
+  // Handle incoming navigation state to auto-select a request (e.g., from Equipment page)
+  useEffect(() => {
+    const selectedRequestId = location.state?.selectedRequestId;
+    if (selectedRequestId && !loading) {
+      // Find the request in kanban data
+      const allRequests = [
+        ...kanbanData.NEW,
+        ...kanbanData.IN_PROGRESS,
+        ...kanbanData.REPAIRED,
+        ...kanbanData.SCRAP,
+      ];
+      const request = allRequests.find((r) => r.id === selectedRequestId);
+      if (request) {
+        setSelectedRequest(request);
+        // Clear the navigation state to prevent re-selecting on subsequent renders
+        window.history.replaceState({}, document.title);
+      }
+    }
+  }, [location.state, kanbanData, loading]);
+
+  const fetchKanbanData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(`${API_BASE_URL}/requests/views/kanban`);
+      const data = await response.json();
+
+      if (data.success) {
+        setKanbanData(data.data);
+      } else {
+        setError(data.error?.message || "Failed to fetch requests");
+      }
+    } catch (err) {
+      setError("Failed to connect to server");
+      console.error("Fetch kanban error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Flatten kanban data for table view and search
+  const allRequests = [
+    ...kanbanData.NEW,
+    ...kanbanData.IN_PROGRESS,
+    ...kanbanData.REPAIRED,
+    ...kanbanData.SCRAP,
+  ];
+
+  const filteredData = allRequests.filter(
+    (item) =>
+      item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.equipment_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.team_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -25,11 +90,30 @@ const Dashboard = () => {
 
       <main className="p-8 max-w-7xl mx-auto">
         {isCreating ? (
-          <NewRequestForm onSave={(req) => { setTableData([req, ...tableData]); setIsCreating(false); }} onBack={() => setIsCreating(false)} />
+          <NewRequestForm
+            onSave={() => {
+              setIsCreating(false);
+              fetchKanbanData(); // Refresh data after creating
+            }}
+            onBack={() => setIsCreating(false)}
+          />
         ) : selectedRequest ? (
-          <MaintenanceDetail data={selectedRequest} onBack={() => setSelectedRequest(null)} />
+          <MaintenanceDetail
+            data={selectedRequest}
+            onBack={() => {
+              setSelectedRequest(null);
+              fetchKanbanData(); // Refresh data when returning
+            }}
+          />
         ) : (
-          <MaintenanceTable data={filteredData} onSelectRequest={setSelectedRequest} />
+          <MaintenanceTable
+            kanbanData={kanbanData}
+            data={filteredData}
+            onSelectRequest={setSelectedRequest}
+            onStatusChange={fetchKanbanData}
+            loading={loading}
+            error={error}
+          />
         )}
       </main>
 

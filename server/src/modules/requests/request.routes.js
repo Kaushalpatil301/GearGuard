@@ -13,5 +13,7 @@ router.get("/:id", requestController.getRequestById);
 router.patch("/:id", requestController.updateRequest);
 
 router.patch("/:id/status", requestController.updateStatus);
+router.post("/:id/assign", requestController.assignTechnician);
+router.get("/:id/logs", requestController.getRequestLogs);
 
 module.exports = router;

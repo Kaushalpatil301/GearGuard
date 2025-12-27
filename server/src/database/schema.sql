@@ -60,6 +60,14 @@ CREATE TYPE priority_level AS ENUM (
     'CRITICAL'
 );
 
+-- User role enum
+CREATE TYPE user_role AS ENUM (
+    'USER',        -- Normal employee (can view, cannot create requests)
+    'TECHNICIAN',  -- Can be assigned to maintenance requests, can be team members
+    'MANAGER',     -- Can create preventive requests, manage teams
+    'ADMIN'        -- Full system access
+);
+
 -- ============================================================================
 -- TABLES
 -- ============================================================================
@@ -67,13 +75,14 @@ CREATE TYPE priority_level AS ENUM (
 -- ----------------------------------------------------------------------------
 -- Users Table
 -- ----------------------------------------------------------------------------
--- Description: System users (technicians, managers, operators)
--- Note: Authentication is handled externally; this is for reference only
+-- Description: System users with authentication and role-based access
+-- Security: password_hash is bcrypt hashed, never exposed in API responses
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
-    role VARCHAR(50) NOT NULL, -- e.g., 'technician', 'manager', 'operator'
+    password_hash VARCHAR(255) NOT NULL,
+    role user_role NOT NULL DEFAULT 'USER',
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

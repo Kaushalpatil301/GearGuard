@@ -27,9 +27,18 @@ const PRIORITY = {
   CRITICAL: "CRITICAL",
 };
 
+// User roles (matches user_role enum in DB)
+const USER_ROLE = {
+  USER: "USER",
+  TECHNICIAN: "TECHNICIAN",
+  MANAGER: "MANAGER",
+  ADMIN: "ADMIN",
+};
+
 module.exports = {
   EQUIPMENT_STATUS,
   REQUEST_TYPE,
   REQUEST_STATUS,
   PRIORITY,
+  USER_ROLE,
 };

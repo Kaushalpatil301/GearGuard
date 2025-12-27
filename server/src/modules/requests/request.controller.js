@@ -1,4 +1,6 @@
 const requestService = require("./request.service");
+const assignmentService = require("../assignments/assignment.service");
+const logService = require("../logs/log.service");
 
 class RequestController {
   /**
@@ -182,6 +184,50 @@ class RequestController {
         success: true,
         data: requests,
         count: requests.length,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Assign technician to a request
+   * POST /api/requests/:id/assign
+   */
+  async assignTechnician(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { assigned_to, assigned_by } = req.body;
+
+      const assignment = await assignmentService.assignTechnician({
+        request_id: id,
+        assigned_to,
+        assigned_by,
+      });
+
+      res.status(200).json({
+        success: true,
+        data: assignment,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Get request logs/history
+   * GET /api/requests/:id/logs
+   */
+  async getRequestLogs(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      const logs = await logService.getRequestLogs(id);
+
+      res.status(200).json({
+        success: true,
+        data: logs,
+        count: logs.length,
       });
     } catch (error) {
       next(error);

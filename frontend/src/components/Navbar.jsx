@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React from "react";
+import { NavLink } from "react-router-dom";
 import {
   Activity,
   LayoutDashboard,
@@ -7,8 +7,8 @@ import {
   HardDrive,
   Users,
   Search,
-  Plus
-} from 'lucide-react';
+  Plus,
+} from "lucide-react";
 
 const Navbar = ({ onSearch, searchTerm, isMinimal }) => {
   return (
@@ -41,9 +41,22 @@ const Navbar = ({ onSearch, searchTerm, isMinimal }) => {
 
           {/* Nav tabs */}
           <div className="hidden lg:flex items-center space-x-2">
-            <NavItem to="/dashboard" icon={<LayoutDashboard size={18} />} label="Dashboard" end />
-            <NavItem to="/calendar" icon={<Calendar size={18} />} label="Calendar" />
-            <NavItem to="/equipment" icon={<HardDrive size={18} />} label="Equipment" />
+            <NavItem
+              to="/dashboard"
+              icon={<LayoutDashboard size={18} />}
+              label="Dashboard"
+              end
+            />
+            <NavItem
+              to="/calendar"
+              icon={<Calendar size={18} />}
+              label="Calendar"
+            />
+            <NavItem
+              to="/equipment"
+              icon={<HardDrive size={18} />}
+              label="Equipment"
+            />
             <NavItem to="/teams" icon={<Users size={18} />} label="Teams" />
 
             {/* New Request tab */}
@@ -94,11 +107,11 @@ const NavItem = ({ to, icon, label, end = false, primary = false }) => (
       ${
         primary
           ? isActive
-            ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/40'
-            : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/30'
+            ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/40"
+            : "bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/30"
           : isActive
-          ? 'bg-indigo-600/10 text-white border border-indigo-500/20'
-          : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800/20'
+          ? "bg-indigo-600/10 text-white border border-indigo-500/20"
+          : "text-gray-500 hover:text-gray-300 hover:bg-gray-800/20"
       }
     `}
   >

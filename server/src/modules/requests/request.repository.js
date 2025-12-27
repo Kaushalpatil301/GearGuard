@@ -122,7 +122,21 @@ class RequestRepository {
         u.email as created_by_email,
         ra.assigned_to,
         ra.assigned_at,
-        tech.name as assigned_to_name
+        tech.name as assigned_to_name,
+        -- SLA calculations (only for open requests)
+        CASE 
+          WHEN mr.status IN ('REPAIRED', 'SCRAP') THEN NULL
+          ELSE (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600)::DECIMAL(10,2)
+        END as sla_hours_elapsed,
+        CASE 
+          WHEN mr.status IN ('REPAIRED', 'SCRAP') THEN NULL
+          ELSE (mr.sla_hours - (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600))::DECIMAL(10,2)
+        END as sla_hours_remaining,
+        CASE 
+          WHEN mr.status IN ('REPAIRED', 'SCRAP') THEN FALSE
+          WHEN (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) > mr.sla_hours THEN TRUE
+          ELSE FALSE
+        END as sla_breached
       FROM maintenance_requests mr
       LEFT JOIN equipment e ON mr.equipment_id = e.id
       LEFT JOIN teams t ON mr.team_id = t.id
@@ -278,7 +292,21 @@ class RequestRepository {
         e.name as equipment_name,
         t.name as team_name,
         ra.assigned_to,
-        tech.name as assigned_to_name
+        tech.name as assigned_to_name,
+        -- SLA calculations (only for open requests)
+        CASE 
+          WHEN mr.status IN ('REPAIRED', 'SCRAP') THEN NULL
+          ELSE (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600)::DECIMAL(10,2)
+        END as sla_hours_elapsed,
+        CASE 
+          WHEN mr.status IN ('REPAIRED', 'SCRAP') THEN NULL
+          ELSE (mr.sla_hours - (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600))::DECIMAL(10,2)
+        END as sla_hours_remaining,
+        CASE 
+          WHEN mr.status IN ('REPAIRED', 'SCRAP') THEN FALSE
+          WHEN (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) > mr.sla_hours THEN TRUE
+          ELSE FALSE
+        END as sla_breached
       FROM maintenance_requests mr
       LEFT JOIN equipment e ON mr.equipment_id = e.id
       LEFT JOIN teams t ON mr.team_id = t.id
@@ -330,24 +358,27 @@ class RequestRepository {
         e.name as equipment_name,
         t.name as team_name,
         ra.assigned_to,
-        tech.name as assigned_to_name
+        tech.name as assigned_to_name,
+        creator.name as created_by_name,
+        COALESCE(mr.scheduled_date, mr.created_at) as event_date
       FROM maintenance_requests mr
       LEFT JOIN equipment e ON mr.equipment_id = e.id
       LEFT JOIN teams t ON mr.team_id = t.id
       LEFT JOIN request_assignments ra ON mr.id = ra.request_id
       LEFT JOIN users tech ON ra.assigned_to = tech.id
-      WHERE mr.scheduled_date IS NOT NULL
+      LEFT JOIN users creator ON mr.created_by = creator.id
+      WHERE 1=1
     `;
     const values = [];
     let paramCount = 1;
 
     if (filters.start_date) {
-      query += ` AND mr.scheduled_date >= $${paramCount++}`;
+      query += ` AND COALESCE(mr.scheduled_date, mr.created_at) >= $${paramCount++}`;
       values.push(filters.start_date);
     }
 
     if (filters.end_date) {
-      query += ` AND mr.scheduled_date <= $${paramCount++}`;
+      query += ` AND COALESCE(mr.scheduled_date, mr.created_at) <= $${paramCount++}`;
       values.push(filters.end_date);
     }
 
@@ -356,7 +387,7 @@ class RequestRepository {
       values.push(filters.team_id);
     }
 
-    query += ` ORDER BY mr.scheduled_date ASC`;
+    query += ` ORDER BY COALESCE(mr.scheduled_date, mr.created_at) ASC`;
 
     const result = await db.query(query, values);
     return result.rows;

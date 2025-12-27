@@ -119,18 +119,28 @@ class RequestService {
     // Auto-fill team_id from equipment
     const team_id = equipment.team_id;
 
-    const request = await requestRepository.create({
-      equipment_id,
-      team_id,
-      request_type,
-      title: title.trim(),
-      description: description.trim(),
-      priority: priority || PRIORITY.MEDIUM,
-      scheduled_date: scheduled_date || null,
-      created_by,
-    });
+    try {
+      const request = await requestRepository.create({
+        equipment_id,
+        team_id,
+        request_type,
+        title: title.trim(),
+        description: description.trim(),
+        priority: priority || PRIORITY.MEDIUM,
+        scheduled_date: scheduled_date || null,
+        created_by,
+      });
 
-    return request;
+      return request;
+    } catch (error) {
+      // Handle foreign key constraint violations
+      if (error.code === "23503") {
+        throw new NotFoundError(
+          "Referenced equipment, team, or user does not exist"
+        );
+      }
+      throw error;
+    }
   }
 
   /**
@@ -296,6 +306,16 @@ class RequestService {
           throw new ValidationError("Invalid scheduled date format");
         }
       }
+    }
+
+    if (updates.duration_hours !== undefined) {
+      const duration = parseFloat(updates.duration_hours);
+      if (isNaN(duration) || duration < 0 || duration > 999.99) {
+        throw new ValidationError(
+          "Duration must be a positive number less than 1000 hours"
+        );
+      }
+      updates.duration_hours = duration;
     }
 
     const updated = await requestRepository.update(requestId, updates);

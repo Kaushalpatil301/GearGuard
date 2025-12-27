@@ -81,7 +81,7 @@ class RequestRepository {
 
   /**
    * Find all requests with optional filters
-   * @param {Object} filters - { status?, team_id?, equipment_id?, request_type?, priority? }
+   * @param {Object} filters - { status?, team_id?, equipment_id?, request_type?, priority?, limit?, offset? }
    * @returns {Promise<Array>} List of requests
    */
   async findAll(filters = {}) {
@@ -131,6 +131,11 @@ class RequestRepository {
     }
 
     query += ` ORDER BY mr.created_at DESC`;
+
+    const limit = filters.limit || 100;
+    const offset = filters.offset || 0;
+    query += ` LIMIT $${paramCount++} OFFSET $${paramCount++}`;
+    values.push(limit, offset);
 
     const result = await db.query(query, values);
     return result.rows;
@@ -182,6 +187,11 @@ class RequestRepository {
     if (updates.scheduled_date !== undefined) {
       fields.push(`scheduled_date = $${paramCount++}`);
       values.push(updates.scheduled_date);
+    }
+
+    if (updates.duration_hours !== undefined) {
+      fields.push(`duration_hours = $${paramCount++}`);
+      values.push(updates.duration_hours);
     }
 
     if (fields.length === 0) {

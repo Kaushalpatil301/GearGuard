@@ -3,29 +3,35 @@ const db = require("../../config/db");
 class EquipmentRepository {
   /**
    * Create new equipment
-   * @param {Object} equipmentData - { name, description, serial_number, team_id, location, purchase_date }
+   * @param {Object} equipmentData - { name, description, serial_number, department, owner_id, team_id, location, purchase_date, warranty_end_date }
    * @returns {Promise<Object>} Created equipment
    */
   async create({
     name,
     description,
     serial_number,
+    department,
+    owner_id,
     team_id,
     location,
     purchase_date,
+    warranty_end_date,
   }) {
     const query = `
-      INSERT INTO equipment (name, description, serial_number, team_id, location, purchase_date)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO equipment (name, description, serial_number, department, owner_id, team_id, location, purchase_date, warranty_end_date)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *
     `;
     const result = await db.query(query, [
       name,
       description || null,
       serial_number,
+      department || null,
+      owner_id || null,
       team_id,
       location || null,
       purchase_date || null,
+      warranty_end_date || null,
     ]);
     return result.rows[0];
   }
@@ -79,7 +85,7 @@ class EquipmentRepository {
 
   /**
    * Find all equipment with optional filters
-   * @param {Object} filters - { team_id?, status? }
+   * @param {Object} filters - { team_id?, status?, limit?, offset? }
    * @returns {Promise<Array>} List of equipment
    */
   async findAll(filters = {}) {
@@ -106,6 +112,11 @@ class EquipmentRepository {
 
     query += ` ORDER BY e.name ASC`;
 
+    const limit = filters.limit || 100;
+    const offset = filters.offset || 0;
+    query += ` LIMIT $${paramCount++} OFFSET $${paramCount++}`;
+    values.push(limit, offset);
+
     const result = await db.query(query, values);
     return result.rows;
   }
@@ -113,7 +124,7 @@ class EquipmentRepository {
   /**
    * Update equipment details
    * @param {string} equipmentId - UUID
-   * @param {Object} updates - { name?, description?, location?, purchase_date? }
+   * @param {Object} updates - { name?, description?, department?, owner_id?, location?, purchase_date?, warranty_end_date? }
    * @returns {Promise<Object|null>} Updated equipment or null
    */
   async update(equipmentId, updates) {
@@ -131,6 +142,16 @@ class EquipmentRepository {
       values.push(updates.description);
     }
 
+    if (updates.department !== undefined) {
+      fields.push(`department = $${paramCount++}`);
+      values.push(updates.department);
+    }
+
+    if (updates.owner_id !== undefined) {
+      fields.push(`owner_id = $${paramCount++}`);
+      values.push(updates.owner_id);
+    }
+
     if (updates.location !== undefined) {
       fields.push(`location = $${paramCount++}`);
       values.push(updates.location);
@@ -139,6 +160,11 @@ class EquipmentRepository {
     if (updates.purchase_date !== undefined) {
       fields.push(`purchase_date = $${paramCount++}`);
       values.push(updates.purchase_date);
+    }
+
+    if (updates.warranty_end_date !== undefined) {
+      fields.push(`warranty_end_date = $${paramCount++}`);
+      values.push(updates.warranty_end_date);
     }
 
     if (fields.length === 0) {

@@ -1,10 +1,3 @@
-/**
- * Request Service
- *
- * Business logic for maintenance requests.
- * Enforces request type rules, status transitions, and business constraints.
- */
-
 const requestRepository = require("./request.repository");
 const {
   ValidationError,

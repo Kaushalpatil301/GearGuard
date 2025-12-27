@@ -1,10 +1,3 @@
-/**
- * Equipment Service
- *
- * Business logic for equipment management.
- * Enforces business rules and orchestrates repository calls.
- */
-
 const equipmentRepository = require("./equipment.repository");
 const {
   ValidationError,

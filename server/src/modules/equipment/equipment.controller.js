@@ -1,10 +1,3 @@
-/**
- * Equipment Controller
- *
- * HTTP request handlers for equipment endpoints.
- * Thin layer - delegates all logic to service.
- */
-
 const equipmentService = require("./equipment.service");
 
 class EquipmentController {

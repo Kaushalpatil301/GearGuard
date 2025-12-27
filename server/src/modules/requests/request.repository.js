@@ -1,10 +1,3 @@
-/**
- * Request Repository
- *
- * Data access layer for maintenance requests.
- * Contains raw SQL queries with no business logic.
- */
-
 const db = require("../../config/db");
 
 class RequestRepository {

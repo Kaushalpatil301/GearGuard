@@ -1,10 +1,3 @@
-/**
- * Application Constants
- *
- * Enums and constants used throughout the application.
- * Must match database enum definitions.
- */
-
 // Equipment status values (matches equipment_status enum in DB)
 const EQUIPMENT_STATUS = {
   OPERATIONAL: "OPERATIONAL",

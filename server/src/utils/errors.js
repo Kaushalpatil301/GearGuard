@@ -1,9 +1,3 @@
-/**
- * Custom Error Classes
- *
- * Application-specific errors for consistent error handling.
- */
-
 class ValidationError extends Error {
   constructor(message) {
     super(message);

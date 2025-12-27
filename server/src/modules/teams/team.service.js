@@ -1,10 +1,3 @@
-/**
- * Team Service
- *
- * Business logic for maintenance teams.
- * Enforces business rules and orchestrates repository calls.
- */
-
 const teamRepository = require("./team.repository");
 const {
   ValidationError,

@@ -1,10 +1,3 @@
-/**
- * Equipment Repository
- *
- * Data access layer for equipment management.
- * Contains raw SQL queries with no business logic.
- */
-
 const db = require("../../config/db");
 
 class EquipmentRepository {

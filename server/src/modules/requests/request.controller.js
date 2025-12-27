@@ -1,10 +1,3 @@
-/**
- * Request Controller
- *
- * HTTP request handlers for maintenance request endpoints.
- * Thin layer - delegates all logic to service.
- */
-
 const requestService = require("./request.service");
 
 class RequestController {

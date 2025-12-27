@@ -1,10 +1,3 @@
-/**
- * Team Controller
- *
- * HTTP request handlers for team endpoints.
- * Thin layer - delegates all logic to service.
- */
-
 const teamService = require("./team.service");
 
 class TeamController {

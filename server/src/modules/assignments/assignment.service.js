@@ -1,10 +1,3 @@
-/**
- * Assignment Service
- *
- * Business logic for request assignments.
- * Enforces team-based assignment rules and uses transactions for concurrency safety.
- */
-
 const assignmentRepository = require("./assignment.repository");
 const logService = require("../logs/log.service");
 const {

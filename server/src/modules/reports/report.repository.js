@@ -1,10 +1,3 @@
-/**
- * Report Repository
- *
- * Read-only queries for reporting and analytics.
- * Computes derived values at query time (no stored computed fields).
- */
-
 const db = require("../../config/db");
 
 class ReportRepository {

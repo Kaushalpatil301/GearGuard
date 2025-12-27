@@ -1,10 +1,3 @@
-/**
- * Database Configuration
- *
- * PostgreSQL connection pool using pg library.
- * Provides pool for queries and transaction helper.
- */
-
 const { Pool } = require("pg");
 
 // Create connection pool
@@ -19,7 +12,6 @@ const pool = new Pool({
   connectionTimeoutMillis: 2000,
 });
 
-// Test connection on startup
 pool.on("connect", () => {
   console.log("✓ Database connection established");
 });
@@ -29,18 +21,8 @@ pool.on("error", (err) => {
   process.exit(-1);
 });
 
-/**
- * Execute a query
- * @param {string} text - SQL query
- * @param {Array} params - Query parameters
- */
 const query = (text, params) => pool.query(text, params);
 
-/**
- * Transaction helper
- * @param {Function} callback - Function to execute within transaction
- * @returns {Promise} Result of callback
- */
 const withTransaction = async (callback) => {
   const client = await pool.connect();
 

@@ -1,10 +1,3 @@
-/**
- * Assignment Repository
- *
- * Data access layer for request assignments.
- * Contains raw SQL queries with transaction support.
- */
-
 const db = require("../../config/db");
 
 class AssignmentRepository {

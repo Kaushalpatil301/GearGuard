@@ -1,10 +1,3 @@
-/**
- * Team Repository
- *
- * Data access layer for maintenance teams.
- * Contains raw SQL queries with no business logic.
- */
-
 const db = require("../../config/db");
 
 class TeamRepository {

@@ -9,6 +9,25 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ============================================================================
+-- DROP EXISTING OBJECTS
+-- ============================================================================
+
+-- Drop tables in reverse dependency order
+DROP TABLE IF EXISTS maintenance_logs CASCADE;
+DROP TABLE IF EXISTS request_assignments CASCADE;
+DROP TABLE IF EXISTS maintenance_requests CASCADE;
+DROP TABLE IF EXISTS equipment CASCADE;
+DROP TABLE IF EXISTS team_members CASCADE;
+DROP TABLE IF EXISTS teams CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
+-- Drop types
+DROP TYPE IF EXISTS priority_level CASCADE;
+DROP TYPE IF EXISTS request_status CASCADE;
+DROP TYPE IF EXISTS request_type CASCADE;
+DROP TYPE IF EXISTS equipment_status CASCADE;
+
+-- ============================================================================
 -- ENUMS
 -- ============================================================================
 
@@ -151,6 +170,7 @@ CREATE TABLE maintenance_requests (
     priority priority_level NOT NULL DEFAULT 'MEDIUM',
     scheduled_date TIMESTAMP, -- Required for PREVENTIVE, optional for CORRECTIVE
     duration_hours DECIMAL(5,2), -- Hours spent on repair (set when completed)
+    sla_hours INTEGER NOT NULL DEFAULT 48, -- Service Level Agreement in hours
     created_by UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -168,6 +188,7 @@ CREATE INDEX idx_requests_scheduled ON maintenance_requests(scheduled_date) WHER
 CREATE INDEX idx_requests_overdue ON maintenance_requests(scheduled_date, status) WHERE scheduled_date < CURRENT_TIMESTAMP AND status NOT IN ('REPAIRED', 'SCRAP');
 CREATE INDEX idx_requests_type_status ON maintenance_requests(request_type, status);
 CREATE INDEX idx_requests_created_by ON maintenance_requests(created_by);
+CREATE INDEX idx_requests_sla ON maintenance_requests(created_at, status, sla_hours) WHERE status NOT IN ('REPAIRED', 'SCRAP');
 
 -- ----------------------------------------------------------------------------
 -- Request Assignments Table

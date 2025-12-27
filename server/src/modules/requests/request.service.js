@@ -30,6 +30,7 @@ class RequestService {
     description,
     priority,
     scheduled_date,
+    sla_hours,
     created_by,
   }) {
     // Validate required fields
@@ -128,6 +129,7 @@ class RequestService {
         description: description.trim(),
         priority: priority || PRIORITY.MEDIUM,
         scheduled_date: scheduled_date || null,
+        sla_hours: sla_hours || 48,
         created_by,
       });
 
@@ -399,6 +401,24 @@ class RequestService {
           }`
       );
     }
+  }
+
+  /**
+   * Get requests that have breached SLA
+   * @returns {Promise<Array>} Breached requests with computed SLA data
+   */
+  async getSlaBreachedRequests() {
+    const requests = await requestRepository.findSlaBreached();
+    return requests;
+  }
+
+  /**
+   * Get requests at risk of breaching SLA (within 20% of breach)
+   * @returns {Promise<Array>} At-risk requests with computed SLA data
+   */
+  async getSlaAtRiskRequests() {
+    const requests = await requestRepository.findSlaAtRisk();
+    return requests;
   }
 
   /**

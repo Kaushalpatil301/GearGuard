@@ -447,6 +447,94 @@ class ReportRepository {
   }
 
   /**
+   * Get SLA breach statistics by team
+   * @returns {Promise<Array>} SLA breach counts grouped by team
+   */
+  async getSlaBreachStatsByTeam() {
+    const query = `
+      SELECT 
+        t.id as team_id,
+        t.name as team_name,
+        COUNT(mr.id) as total_active_requests,
+        COUNT(CASE 
+          WHEN (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) > mr.sla_hours 
+          THEN 1 
+        END) as breached_requests,
+        COUNT(CASE 
+          WHEN (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) <= mr.sla_hours
+            AND (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) >= (mr.sla_hours * 0.8)
+          THEN 1 
+        END) as at_risk_requests,
+        COUNT(CASE 
+          WHEN (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) < (mr.sla_hours * 0.8)
+          THEN 1 
+        END) as on_track_requests,
+        ROUND(
+          AVG(CASE 
+            WHEN (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) > mr.sla_hours 
+            THEN ((EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) - mr.sla_hours)
+          END), 
+          2
+        ) as avg_breach_hours
+      FROM teams t
+      LEFT JOIN maintenance_requests mr ON t.id = mr.team_id
+        AND mr.status NOT IN ('REPAIRED', 'SCRAP')
+      WHERE t.is_active = TRUE
+      GROUP BY t.id, t.name
+      ORDER BY breached_requests DESC, at_risk_requests DESC
+    `;
+
+    const result = await db.query(query);
+    return result.rows;
+  }
+
+  /**
+   * Get SLA breach statistics by priority
+   * @returns {Promise<Array>} SLA breach counts grouped by priority
+   */
+  async getSlaBreachStatsByPriority() {
+    const query = `
+      SELECT 
+        mr.priority,
+        COUNT(mr.id) as total_active_requests,
+        COUNT(CASE 
+          WHEN (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) > mr.sla_hours 
+          THEN 1 
+        END) as breached_requests,
+        COUNT(CASE 
+          WHEN (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) <= mr.sla_hours
+            AND (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) >= (mr.sla_hours * 0.8)
+          THEN 1 
+        END) as at_risk_requests,
+        COUNT(CASE 
+          WHEN (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) < (mr.sla_hours * 0.8)
+          THEN 1 
+        END) as on_track_requests,
+        ROUND(
+          AVG(CASE 
+            WHEN (EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) > mr.sla_hours 
+            THEN ((EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 3600) - mr.sla_hours)
+          END), 
+          2
+        ) as avg_breach_hours,
+        ROUND(AVG(mr.sla_hours), 2) as avg_sla_hours
+      FROM maintenance_requests mr
+      WHERE mr.status NOT IN ('REPAIRED', 'SCRAP')
+      GROUP BY mr.priority
+      ORDER BY 
+        CASE mr.priority
+          WHEN 'CRITICAL' THEN 1
+          WHEN 'HIGH' THEN 2
+          WHEN 'MEDIUM' THEN 3
+          WHEN 'LOW' THEN 4
+        END
+    `;
+
+    const result = await db.query(query);
+    return result.rows;
+  }
+
+  /**
    * Get dashboard summary statistics
    * @returns {Promise<Object>} Overall system statistics
    */

@@ -85,7 +85,7 @@ INSERT INTO equipment (id, name, description, serial_number, department, owner_i
 -- MAINTENANCE REQUESTS
 -- ============================================================================
 
-INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, status, title, description, priority, scheduled_date, created_by) VALUES
+INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, status, title, description, priority, scheduled_date, sla_hours, created_by) VALUES
 -- New Requests (Not yet assigned)
 ('111a1111-1111-1111-1111-111111111111', 
  'eeee1111-2222-2222-2222-222222222222', 
@@ -96,6 +96,7 @@ INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, statu
  'HP LaserJet printer has frequent paper jams. Need to inspect and clean the rollers.',
  'MEDIUM',
  NULL,
+ 48,
  'c9d0e1f2-a3b4-2c3d-6e7f-8a9b0c1d2e3f'), -- Rahul Verma
 
 ('111a1111-2222-2222-2222-222222222222', 
@@ -107,6 +108,7 @@ INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, statu
  'Scheduled preventive maintenance including lubrication, calibration, and safety checks.',
  'HIGH',
  '2025-01-15 10:00:00',
+ 24,
  'd0e1f2a3-b4c5-3d4e-7f8a-9b0c1d2e3f4a'), -- Deepika Joshi
 
 ('111a1111-3333-3333-3333-333333333333', 
@@ -118,6 +120,7 @@ INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, statu
  'Diesel generator failed to start during power outage test. Battery might be dead.',
  'CRITICAL',
  NULL,
+ 4,
  'c9d0e1f2-a3b4-2c3d-6e7f-8a9b0c1d2e3f'), -- Rahul Verma
 
 -- In Progress Requests (Already assigned)
@@ -130,6 +133,7 @@ INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, statu
  'Port 24 on Cisco switch is not responding. Need to diagnose and replace if necessary.',
  'HIGH',
  NULL,
+ 24,
  'e1f2a3b4-c5d6-4e5f-8a9b-0c1d2e3f4a5b'), -- Manoj Gupta
 
 ('222a2222-2222-2222-2222-222222222222', 
@@ -141,6 +145,7 @@ INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, statu
  'Annual battery replacement for UPS system to ensure backup power reliability.',
  'MEDIUM',
  '2024-12-28 14:00:00',
+ 48,
  'd0e1f2a3-b4c5-3d4e-7f8a-9b0c1d2e3f4a'), -- Deepika Joshi
 
 -- Completed Requests
@@ -153,6 +158,7 @@ INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, statu
  'Central AC unit was not maintaining temperature. Refrigerant was recharged.',
  'HIGH',
  NULL,
+ 24,
  'c9d0e1f2-a3b4-2c3d-6e7f-8a9b0c1d2e3f'), -- Rahul Verma
 
 ('333a3333-2222-2222-2222-222222222222', 
@@ -164,6 +170,7 @@ INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, statu
  'Routine inspection completed. All hydraulic seals and pressure gauges checked and certified.',
  'MEDIUM',
  '2024-12-15 09:00:00',
+ 72,
  'd0e1f2a3-b4c5-3d4e-7f8a-9b0c1d2e3f4a'), -- Deepika Joshi
 
 -- Scrapped Equipment Request
@@ -176,6 +183,7 @@ INSERT INTO maintenance_requests (id, equipment_id, team_id, request_type, statu
  'Motor seized completely. Equipment is beyond economical repair. Recommended for scrapping.',
  'LOW',
  NULL,
+ 96,
  'e1f2a3b4-c5d6-4e5f-8a9b-0c1d2e3f4a5b'); -- Manoj Gupta
 
 -- ============================================================================

@@ -5,6 +5,7 @@ const authRoutes = require("./modules/auth/auth.routes");
 const teamRoutes = require("./modules/teams/team.routes");
 const equipmentRoutes = require("./modules/equipment/equipment.routes");
 const requestRoutes = require("./modules/requests/request.routes");
+const reportRoutes = require("./modules/reports/report.routes");
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/equipment", equipmentRoutes);
 app.use("/api/requests", requestRoutes);
+app.use("/api/reports", reportRoutes);
 
 app.use("*", (req, res) => {
   res.status(404).json({

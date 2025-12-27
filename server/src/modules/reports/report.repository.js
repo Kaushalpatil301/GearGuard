@@ -561,6 +561,59 @@ class ReportRepository {
     const result = await db.query(query);
     return result.rows[0];
   }
+
+  /**
+   * Get request aging analysis
+   * Groups requests by age buckets
+   * @returns {Promise<Array>} Request counts by age bucket
+   */
+  async getRequestAging() {
+    const query = `
+      SELECT 
+        CASE 
+          WHEN age_days <= 1 THEN '0-1 days'
+          WHEN age_days <= 3 THEN '1-3 days'
+          WHEN age_days <= 7 THEN '3-7 days'
+          WHEN age_days <= 14 THEN '1-2 weeks'
+          WHEN age_days <= 30 THEN '2-4 weeks'
+          ELSE '30+ days'
+        END as age_bucket,
+        COUNT(*) as request_count,
+        ROUND(AVG(age_days), 1) as avg_age_days,
+        json_agg(
+          json_build_object(
+            'id', id,
+            'title', title,
+            'priority', priority,
+            'status', status,
+            'age_days', ROUND(age_days, 1)
+          ) ORDER BY age_days DESC
+        ) as sample_requests
+      FROM (
+        SELECT 
+          mr.id,
+          mr.title,
+          mr.priority,
+          mr.status,
+          EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - mr.created_at)) / 86400 as age_days
+        FROM maintenance_requests mr
+        WHERE mr.status NOT IN ('REPAIRED', 'SCRAP')
+      ) as aged_requests
+      GROUP BY age_bucket
+      ORDER BY 
+        CASE age_bucket
+          WHEN '0-1 days' THEN 1
+          WHEN '1-3 days' THEN 2
+          WHEN '3-7 days' THEN 3
+          WHEN '1-2 weeks' THEN 4
+          WHEN '2-4 weeks' THEN 5
+          WHEN '30+ days' THEN 6
+        END
+    `;
+
+    const result = await db.query(query);
+    return result.rows;
+  }
 }
 
 module.exports = new ReportRepository();

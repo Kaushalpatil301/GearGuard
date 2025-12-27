@@ -16,6 +16,7 @@ import MaintenanceCalendar from "./pages/MaintainceCalender";
 import EquipmentList from "./pages/EquipmentList";
 import EquipmentDetailPage from "./pages/EquipmentDetailPage";
 import TeamsManagement from "./pages/TeanManagement";
+import ReportsPage from "./pages/ReportsPage";
 import getActiveViewFromPath from "./components/AppLayout";
 import NewRequestForm from "./components/NewRequestForm";
 import NewRequestPage from "./pages/NewRequestPage";
@@ -94,6 +95,14 @@ const AppLayout = () => {
           element={
             <ProtectedRoute>
               <TeamsManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute>
+              <ReportsPage />
             </ProtectedRoute>
           }
         />

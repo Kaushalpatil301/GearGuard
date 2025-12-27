@@ -8,6 +8,7 @@ import {
   Users,
   Plus,
   LogOut,
+  BarChart3,
 } from "lucide-react";
 
 const Navbar = ({ isMinimal }) => {
@@ -64,10 +65,11 @@ const Navbar = ({ isMinimal }) => {
               icon={<HardDrive size={18} />}
               label="Equipment"
             />
+            <NavItem to="/teams" icon={<Users size={18} />} label="Teams" />
             <NavItem
-              to="/teams"
-              icon={<Users size={18} />}
-              label="Teams"
+              to="/reports"
+              icon={<BarChart3 size={18} />}
+              label="Reports"
             />
             <NavItem
               to="/requests/new"

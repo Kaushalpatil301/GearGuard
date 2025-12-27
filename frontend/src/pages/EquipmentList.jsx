@@ -338,13 +338,19 @@ const EquipmentList = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3">
                           <button
                             onClick={() => handleViewRequests(item)}
-                            className="p-1.5 rounded-lg border border-indigo-600/30 text-indigo-400 hover:bg-indigo-500/10 hover:border-indigo-500/50 transition"
+                            className="group flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-800/40 border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/10 hover:border-indigo-400 hover:text-indigo-300 hover:shadow-[0_0_15px_-3px_rgba(99,102,241,0.3)] transition-all duration-300"
                             title="View maintenance requests"
                           >
-                            <FileText size={14} />
+                            <FileText
+                              size={14}
+                              className="group-hover:scale-110 transition-transform duration-300"
+                            />
+                            <span className="text-[10px] font-black uppercase tracking-widest">
+                              Smart Button
+                            </span>
                           </button>
                           {item.status !== "SCRAPPED" && (
                             <button

@@ -1,16 +1,23 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   Activity,
   LayoutDashboard,
   Calendar,
   HardDrive,
   Users,
-  Search,
   Plus,
+  LogOut,
 } from "lucide-react";
 
-const Navbar = ({ onSearch, searchTerm, isMinimal }) => {
+const Navbar = ({ isMinimal }) => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.clear(); // or remove specific keys if you prefer
+    navigate("/login");
+  };
+
   return (
     <nav
       className="
@@ -57,9 +64,11 @@ const Navbar = ({ onSearch, searchTerm, isMinimal }) => {
               icon={<HardDrive size={18} />}
               label="Equipment"
             />
-            <NavItem to="/teams" icon={<Users size={18} />} label="Teams" />
-
-            {/* New Request tab */}
+            <NavItem
+              to="/teams"
+              icon={<Users size={18} />}
+              label="Teams"
+            />
             <NavItem
               to="/requests/new"
               icon={<Plus size={18} />}
@@ -69,28 +78,22 @@ const Navbar = ({ onSearch, searchTerm, isMinimal }) => {
           </div>
         </div>
 
-        {/* Right */}
+        {/* Right – Logout */}
         {!isMinimal && (
-          <div className="relative group hidden sm:block">
-            <Search
-              size={16}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-indigo-400 transition-colors"
-            />
-            <input
-              type="text"
-              placeholder="Search resources..."
-              className="
-                pl-11 pr-4 py-2.5 w-72
-                bg-gray-900/40
-                border border-gray-700/30
-                rounded-2xl
-                text-gray-100 placeholder-gray-600
-                focus:outline-none focus:ring-2 focus:ring-indigo-500/40
-              "
-              value={searchTerm}
-              onChange={(e) => onSearch(e.target.value)}
-            />
-          </div>
+          <button
+            onClick={handleLogout}
+            className="
+              flex items-center gap-2 px-5 py-2.5
+              rounded-2xl text-sm font-bold
+              bg-red-600/10 text-red-400
+              border border-red-500/20
+              hover:bg-red-600/20 hover:text-red-300
+              transition-all
+            "
+          >
+            <LogOut size={16} />
+            Logout
+          </button>
         )}
       </div>
     </nav>
